@@ -1,8 +1,4 @@
-Since your project currently **does not include Agentic AI**, I’ll generate a professional README in the style you asked, but adapt **“agent design”** to your **Telegram bot workflow architecture**. You can later extend it if you add AI.
 
-Use this as your `README.md`:
-
-````md
 # Classroom Companion Bot 🎓
 
 A Telegram-based Classroom Management System built using **Spring Boot**, **MySQL**, **Hibernate/JPA**, and **Telegram Bot API**.
@@ -342,7 +338,6 @@ SubmissionServiceTest
 
 # Known Limitations
 
-* No web dashboard yet
 * File contents are not stored in MySQL (only Telegram file IDs)
 * No AI-based assignment evaluation
 * No analytics dashboard
@@ -353,7 +348,6 @@ SubmissionServiceTest
 
 # Future Improvements
 
-* Teacher Dashboard
 * Student Dashboard
 * Real File Storage in Database/Cloud
 * AI Assignment Evaluation
@@ -370,5 +364,5 @@ Built as a Classroom Management Automation Project using Spring Boot and Telegra
 
 ```
 
-This will make your GitHub repo look much more professional and project-report ready.
+
 ```
