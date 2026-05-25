@@ -26,110 +26,65 @@ import com.classroom.repository.UserRepository;
 public class SubmissionServiceTest {
 
     @Mock
-    private UserRepository
-            userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private AssignmentRepository
-            assignmentRepository;
+    private AssignmentRepository assignmentRepository;
 
     @Mock
-    private SubmissionRepository
-            submissionRepository;
+    private SubmissionRepository submissionRepository;
 
     @Mock
-    private TeacherStudentRepository
-            teacherStudentRepository;
+    private TeacherStudentRepository teacherStudentRepository;
 
     @InjectMocks
-    private SubmissionService
-            submissionService;
+    private SubmissionService submissionService;
 
     @Test
     void shouldSubmitTextAssignment() {
 
-        User student =
-                new User();
+        User student = new User();
+        student.setTelegramId(1248264762L);
 
-        student.setTelegramId(
-                1248264762L
-        );
+        Assignment assignment = new Assignment();
+        assignment.setStatus(AssignmentStatus.WAITING_FOR_SUBMISSION);
 
-        Assignment assignment =
-                new Assignment();
-
-        assignment.setStatus(
-                AssignmentStatus
-                        .WAITING_FOR_SUBMISSION
-        );
-
-        TeacherStudent relation =
-                new TeacherStudent();
+        TeacherStudent relation = new TeacherStudent();
 
         // MOCK USER
-        when(
-                userRepository
-                        .findByTelegramId(
-                                1248264762L
-                        )
-        ).thenReturn(
-                Optional.of(student)
-        );
+        when(userRepository.findByTelegramId(1248264762L))
+                .thenReturn(Optional.of(student));
 
         // MOCK ASSIGNMENT
         when(
                 assignmentRepository
                         .findTopByStudentAndStatusOrderByIdDesc(
                                 student,
-                                AssignmentStatus
-                                        .WAITING_FOR_SUBMISSION
+                                AssignmentStatus.WAITING_FOR_SUBMISSION
                         )
-        ).thenReturn(
-                Optional.of(
-                        assignment
-                )
-        );
+        ).thenReturn(Optional.of(assignment));
 
         // MOCK RELATION
-        when(
-                teacherStudentRepository
-                        .findByStudent(
-                                student
-                        )
-        ).thenReturn(
-                Optional.of(
-                        relation
-                )
-        );
+        when(teacherStudentRepository.findByStudent(student))
+                .thenReturn(Optional.of(relation));
 
         TeacherStudent result =
-                submissionService
-                        .submitTextAssignment(
-                                1248264762L,
-                                "Java Notes Completed"
-                        );
+                submissionService.submitTextAssignment(
+                        1248264762L,
+                        "Java Notes Completed"
+                );
 
-        assertNotNull(
-                result
-        );
+        assertNotNull(result);
 
         assertEquals(
-                AssignmentStatus
-                        .COMPLETED,
+                AssignmentStatus.COMPLETED,
                 assignment.getStatus()
         );
 
-        verify(
-                submissionRepository
-        ).save(
-                org.mockito.ArgumentMatchers
-                        .any()
-        );
+        verify(submissionRepository)
+                .save(org.mockito.ArgumentMatchers.any());
 
-        verify(
-                assignmentRepository
-        ).save(
-                assignment
-        );
+        verify(assignmentRepository)
+                .save(assignment);
     }
 }

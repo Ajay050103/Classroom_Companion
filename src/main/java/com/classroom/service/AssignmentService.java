@@ -1,7 +1,6 @@
 package com.classroom.service;
 
 import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
 import com.classroom.entity.Assignment;
@@ -13,84 +12,38 @@ import com.classroom.repository.UserRepository;
 @Service
 public class AssignmentService {
 
-    private final AssignmentRepository
-            assignmentRepository;
-
-    private final UserRepository
-            userRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final UserRepository userRepository;
 
     public AssignmentService(
-            AssignmentRepository
-                    assignmentRepository,
-            UserRepository userRepository
-    ) {
+            AssignmentRepository assignmentRepository,
+            UserRepository userRepository) {
 
-        this.assignmentRepository =
-                assignmentRepository;
-
-        this.userRepository =
-                userRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.userRepository = userRepository;
     }
 
     public User createAssignment(
             Long teacherTelegramId,
             String studentName,
-            String task
-    ) {
+            String task) {
 
-        User teacher =
-                userRepository
-                        .findByTelegramId(
-                                teacherTelegramId
-                        )
-                        .orElse(null);
+        User teacher = userRepository.findByTelegramId(teacherTelegramId).orElse(null);
+        User student = userRepository.findByName(studentName);
 
-        User student =
-                userRepository
-                        .findByName(
-                                studentName
-                        );
+        if (student == null || teacher == null) return null;
 
-        if(student == null
-                || teacher == null) {
+        Assignment assignment = new Assignment();
 
-            return null;
-        }
+        assignment.setTitle("Assignment");
+        assignment.setDescription(task);
+        assignment.setStatus(AssignmentStatus.PENDING);
+        assignment.setTeacher(teacher);
+        assignment.setStudent(student);
+        assignment.setDueDate(LocalDateTime.now().plusDays(3));
+        assignment.setCreatedAt(LocalDateTime.now());
 
-        Assignment assignment =
-                new Assignment();
-
-        assignment.setTitle(
-                "Assignment"
-        );
-
-        assignment.setDescription(
-                task
-        );
-
-        assignment.setStatus(
-                AssignmentStatus.PENDING
-        );
-
-        assignment.setTeacher(
-                teacher
-        );
-
-        assignment.setStudent(
-                student
-        );
-
-        assignment.setDueDate(
-                LocalDateTime.now()
-                        .plusDays(3)
-        );
-
-        assignment.setCreatedAt(
-                LocalDateTime.now()
-        );
-
-        assignmentRepository
-                .save(assignment);
+        assignmentRepository.save(assignment);
 
         return student;
     }

@@ -29,171 +29,83 @@ public class SubmissionService {
             UserRepository userRepository,
             AssignmentRepository assignmentRepository,
             SubmissionRepository submissionRepository,
-            TeacherStudentRepository teacherStudentRepository
-    ) {
+            TeacherStudentRepository teacherStudentRepository) {
 
-        this.userRepository =
-                userRepository;
-
-        this.assignmentRepository =
-                assignmentRepository;
-
-        this.submissionRepository =
-                submissionRepository;
-
-        this.teacherStudentRepository =
-                teacherStudentRepository;
+        this.userRepository = userRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.submissionRepository = submissionRepository;
+        this.teacherStudentRepository = teacherStudentRepository;
     }
 
     @Transactional
-    public TeacherStudent
-    submitTextAssignment(
+    public TeacherStudent submitTextAssignment(
             Long telegramId,
-            String submissionText
-    ) {
+            String submissionText) {
 
-        User student =
-                userRepository
-                        .findByTelegramId(
-                                telegramId
-                        )
-                        .orElse(null);
+        User student = userRepository.findByTelegramId(telegramId).orElse(null);
 
-        if(student == null) {
-            return null;
-        }
+        if (student == null) return null;
 
-        Optional<Assignment>
-                optionalAssignment =
-                assignmentRepository
-                        .findTopByStudentAndStatusOrderByIdDesc(
-                                student,
-                                AssignmentStatus
-                                        .WAITING_FOR_SUBMISSION
-                        );
+        Optional<Assignment> optionalAssignment =
+                assignmentRepository.findTopByStudentAndStatusOrderByIdDesc(
+                        student,
+                        AssignmentStatus.WAITING_FOR_SUBMISSION
+                );
 
-        if(optionalAssignment.isEmpty()) {
-            return null;
-        }
+        if (optionalAssignment.isEmpty()) return null;
 
-        Assignment assignment =
-                optionalAssignment.get();
+        Assignment assignment = optionalAssignment.get();
 
-        Submission submission =
-                new Submission();
+        Submission submission = new Submission();
 
-        submission.setStudent(
-                student
-        );
+        submission.setStudent(student);
+        submission.setAssignment(assignment);
+        submission.setSubmissionText(submissionText);
+        submission.setSubmittedAt(LocalDateTime.now());
+        submission.setStatus(SubmissionStatus.SUBMITTED);
 
-        submission.setAssignment(
-                assignment
-        );
+        submissionRepository.save(submission);
 
-        submission.setSubmissionText(
-                submissionText
-        );
+        assignment.setStatus(AssignmentStatus.COMPLETED);
+        assignmentRepository.save(assignment);
 
-        submission.setSubmittedAt(
-                LocalDateTime.now()
-        );
-
-        submission.setStatus(
-                SubmissionStatus.SUBMITTED
-        );
-
-        submissionRepository
-                .save(submission);
-
-        assignment.setStatus(
-                AssignmentStatus.COMPLETED
-        );
-
-        assignmentRepository
-                .save(assignment);
-
-        return teacherStudentRepository
-                .findByStudent(
-                        student
-                )
-                .orElse(null);
+        return teacherStudentRepository.findByStudent(student).orElse(null);
     }
+
     @Transactional
-    public TeacherStudent
-    submitFileAssignment(
+    public TeacherStudent submitFileAssignment(
             Long telegramId,
             String fileId,
-            String fileType
-    ) {
+            String fileType) {
 
-        User student =
-                userRepository
-                        .findByTelegramId(
-                                telegramId
-                        )
-                        .orElse(null);
+        User student = userRepository.findByTelegramId(telegramId).orElse(null);
 
-        if(student == null) {
-            return null;
-        }
+        if (student == null) return null;
 
-        Optional<Assignment>
-                optionalAssignment =
-                assignmentRepository
-                        .findTopByStudentAndStatusOrderByIdDesc(
-                                student,
-                                AssignmentStatus
-                                        .WAITING_FOR_SUBMISSION
-                        );
+        Optional<Assignment> optionalAssignment =
+                assignmentRepository.findTopByStudentAndStatusOrderByIdDesc(
+                        student,
+                        AssignmentStatus.WAITING_FOR_SUBMISSION
+                );
 
-        if(optionalAssignment.isEmpty()) {
-            return null;
-        }
+        if (optionalAssignment.isEmpty()) return null;
 
-        Assignment assignment =
-                optionalAssignment.get();
+        Assignment assignment = optionalAssignment.get();
 
-        Submission submission =
-                new Submission();
+        Submission submission = new Submission();
 
-        submission.setStudent(
-                student
-        );
+        submission.setStudent(student);
+        submission.setAssignment(assignment);
+        submission.setFileId(fileId);
+        submission.setFileType(fileType);
+        submission.setSubmittedAt(LocalDateTime.now());
+        submission.setStatus(SubmissionStatus.SUBMITTED);
 
-        submission.setAssignment(
-                assignment
-        );
+        submissionRepository.save(submission);
 
-        submission.setFileId(
-                fileId
-        );
+        assignment.setStatus(AssignmentStatus.COMPLETED);
+        assignmentRepository.save(assignment);
 
-        submission.setFileType(
-                fileType
-        );
-
-        submission.setSubmittedAt(
-                LocalDateTime.now()
-        );
-
-        submission.setStatus(
-                SubmissionStatus.SUBMITTED
-        );
-
-        submissionRepository
-                .save(submission);
-
-        assignment.setStatus(
-                AssignmentStatus.COMPLETED
-        );
-
-        assignmentRepository
-                .save(assignment);
-
-        return teacherStudentRepository
-                .findByStudent(
-                        student
-                )
-                .orElse(null);
+        return teacherStudentRepository.findByStudent(student).orElse(null);
     }
 }

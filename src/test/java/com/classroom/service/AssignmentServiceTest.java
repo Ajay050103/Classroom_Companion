@@ -19,97 +19,53 @@ import com.classroom.repository.UserRepository;
 public class AssignmentServiceTest {
 
     @Mock
-    private AssignmentRepository
-            assignmentRepository;
+    private AssignmentRepository assignmentRepository;
 
     @Mock
-    private UserRepository
-            userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
-    private AssignmentService
-            assignmentService;
+    private AssignmentService assignmentService;
 
     @Test
     void shouldCreateAssignment() {
 
-        User teacher =
-                new User();
+        User teacher = new User();
+        teacher.setTelegramId(1694833289L);
 
-        teacher.setTelegramId(
-                1694833289L
-        );
-
-        User student =
-                new User();
-
-        student.setName(
-                "Ajaysajja"
-        );
-
-        student.setTelegramId(
-                1248264762L
-        );
+        User student = new User();
+        student.setName("Ajaysajja");
+        student.setTelegramId(1248264762L);
 
         // MOCK TEACHER
-        when(
-                userRepository
-                        .findByTelegramId(
-                                1694833289L
-                        )
-        ).thenReturn(
-                Optional.of(
-                        teacher
-                )
-        );
+        when(userRepository.findByTelegramId(1694833289L))
+                .thenReturn(Optional.of(teacher));
 
         // MOCK STUDENT
-        when(
-                userRepository
-                        .findByName(
-                                "Ajaysajja"
-                        )
-        ).thenReturn(
-                student
-        );
+        when(userRepository.findByName("Ajaysajja"))
+                .thenReturn(student);
 
-        User result =
-                assignmentService
-                        .createAssignment(
-                                1694833289L,
-                                "Ajaysajja",
-                                "Java Notes"
-                        );
-
-        assertEquals(
+        User result = assignmentService.createAssignment(
+                1694833289L,
                 "Ajaysajja",
-                result.getName()
+                "Java Notes"
         );
+
+        assertEquals("Ajaysajja", result.getName());
     }
 
     @Test
     void shouldReturnNullIfStudentNotFound() {
 
-        when(
-                userRepository
-                        .findByName(
-                                "Unknown"
-                        )
-        ).thenReturn(
-                null
+        when(userRepository.findByName("Unknown"))
+                .thenReturn(null);
+
+        User result = assignmentService.createAssignment(
+                1694833289L,
+                "Unknown",
+                "Java Notes"
         );
 
-        User result =
-                assignmentService
-                        .createAssignment(
-                                1694833289L,
-                                "Unknown",
-                                "Java Notes"
-                        );
-
-        assertEquals(
-                null,
-                result
-        );
+        assertEquals(null, result);
     }
 }

@@ -24,99 +24,53 @@ import com.classroom.repository.UserRepository;
 public class ProgressServiceTest {
 
     @Mock
-    private UserRepository
-            userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private AssignmentRepository
-            assignmentRepository;
+    private AssignmentRepository assignmentRepository;
 
     @Mock
-    private TeacherStudentRepository
-            teacherStudentRepository;
+    private TeacherStudentRepository teacherStudentRepository;
 
     @Mock
-    private AssignmentProgressRepository
-            progressRepository;
+    private AssignmentProgressRepository progressRepository;
 
     @InjectMocks
-    private ProgressService
-            progressService;
+    private ProgressService progressService;
 
     @Test
     void shouldProcessStudentProgress() {
 
-        User student =
-                new User();
+        User student = new User();
+        student.setTelegramId(1248264762L);
+        student.setName("Ajaysajja");
 
-        student.setTelegramId(
-                1248264762L
-        );
+        Assignment assignment = new Assignment();
+        assignment.setId(1L);
 
-        student.setName(
-                "Ajaysajja"
-        );
-
-        Assignment assignment =
-                new Assignment();
-
-        assignment.setId(
-                1L
-        );
-
-        TeacherStudent relation =
-                new TeacherStudent();
+        TeacherStudent relation = new TeacherStudent();
 
         // MOCK STUDENT
-        when(
-                userRepository
-                        .findByTelegramId(
-                                1248264762L
-                        )
-        ).thenReturn(
-                Optional.of(
-                        student
-                )
-        );
+        when(userRepository.findByTelegramId(1248264762L))
+                .thenReturn(Optional.of(student));
 
         // MOCK ASSIGNMENT
-        when(
-                assignmentRepository
-                        .findTopByStudentOrderByIdDesc(
-                                student
-                        )
-        ).thenReturn(
-                Optional.of(
-                        assignment
-                )
-        );
+        when(assignmentRepository.findTopByStudentOrderByIdDesc(student))
+                .thenReturn(Optional.of(assignment));
 
         // MOCK RELATION
-        when(
-                teacherStudentRepository
-                        .findByStudent(
-                                student
-                        )
-        ).thenReturn(
-                Optional.of(
-                        relation
-                )
-        );
+        when(teacherStudentRepository.findByStudent(student))
+                .thenReturn(Optional.of(relation));
 
         TeacherStudent result =
-                progressService
-                        .processStudentProgress(
-                                1248264762L,
-                                "completed"
-                        );
+                progressService.processStudentProgress(
+                        1248264762L,
+                        "completed"
+                );
 
-        assertNotNull(
-                result
-        );
+        assertNotNull(result);
+
         verify(progressRepository)
-        .save(
-                org.mockito.ArgumentMatchers.any()
-        );
+                .save(org.mockito.ArgumentMatchers.any());
     }
-
 }

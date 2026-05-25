@@ -26,17 +26,8 @@ public class DashboardController {
     public String dashboard(
             Model model
     ) {
-
-        List<Assignment>
-                assignments =
-                assignmentRepository
-                        .findAll();
-
-        model.addAttribute(
-                "assignments",
-                assignments
-        );
-
+    	List<Assignment> assignments = assignmentRepository.findAll();
+    	model.addAttribute("assignments", assignments);
         return "dashboard";
     }
 }

@@ -16,150 +16,97 @@ import com.classroom.repository.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final TeacherStudentRepository
-            teacherStudentRepository;
+    private final TeacherStudentRepository teacherStudentRepository;
 
     public UserService(
             UserRepository userRepository,
-            TeacherStudentRepository
-                    teacherStudentRepository
-    ) {
-        this.userRepository =
-                userRepository;
-        this.teacherStudentRepository =
-                teacherStudentRepository;
+            TeacherStudentRepository teacherStudentRepository) {
+
+        this.userRepository = userRepository;
+        this.teacherStudentRepository = teacherStudentRepository;
     }
 
     public String registerTeacher(
             Long telegramId,
             String username,
-            String name
-    ) {
+            String name) {
 
         Optional<User> existingUser =
-                userRepository
-                        .findByTelegramId(
-                                telegramId
-                        );
+                userRepository.findByTelegramId(telegramId);
 
         if (existingUser.isPresent()) {
-
             return "You are already registered.";
         }
 
         User teacher = new User();
 
-        teacher.setTelegramId(
-                telegramId
-        );
-
-        teacher.setUsername(
-                username
-        );
-
+        teacher.setTelegramId(telegramId);
+        teacher.setUsername(username);
         teacher.setName(name);
-
-        teacher.setRole(
-                Role.TEACHER
-        );
-
-        teacher.setCreatedAt(
-                LocalDateTime.now()
-        );
+        teacher.setRole(Role.TEACHER);
+        teacher.setCreatedAt(LocalDateTime.now());
 
         userRepository.save(teacher);
 
-        String inviteCode =
-                UUID.randomUUID()
-                        .toString()
-                        .substring(0, 6)
-                        .toUpperCase();
+        String inviteCode = UUID.randomUUID()
+                .toString()
+                .substring(0, 6)
+                .toUpperCase();
 
-        TeacherStudent ts =
-                new TeacherStudent();
+        TeacherStudent ts = new TeacherStudent();
 
         ts.setTeacher(teacher);
+        ts.setInviteCode(inviteCode);
 
-        ts.setInviteCode(
-                inviteCode
-        );
-
-        teacherStudentRepository
-                .save(ts);
+        teacherStudentRepository.save(ts);
 
         return """
-                Teacher Registered ✅
+                Teacher Registered 
 
                 Invite Code:
                 """ + inviteCode;
     }
+
     public String registerStudent(
             Long telegramId,
             String username,
             String name,
-            String inviteCode
-    ) {
+            String inviteCode) {
 
         TeacherStudent teacherStudent =
                 teacherStudentRepository
-                        .findByInviteCode(
-                                inviteCode
-                        )
+                        .findByInviteCode(inviteCode)
                         .orElse(null);
 
         if (teacherStudent == null) {
-
-            return "Invalid Invite Code ❌";
+            return "Invalid Invite Code ";
         }
 
         User existingUser =
-                userRepository
-                        .findByTelegramId(
-                                telegramId
-                        )
+                userRepository.findByTelegramId(telegramId)
                         .orElse(null);
 
         if (existingUser != null) {
-
             return "You are already registered.";
         }
 
         User student = new User();
 
-        student.setTelegramId(
-                telegramId
-        );
+        student.setTelegramId(telegramId);
+        student.setUsername(username);
+        student.setName(name);
+        student.setRole(Role.STUDENT);
+        student.setCreatedAt(LocalDateTime.now());
 
-        student.setUsername(
-                username
-        );
+        userRepository.save(student);
 
-        student.setName(
-                name
-        );
+        teacherStudent.setStudent(student);
 
-        student.setRole(
-                Role.STUDENT
-        );
-
-        student.setCreatedAt(
-                LocalDateTime.now()
-        );
-
-        userRepository.save(
-                student
-        );
-
-        teacherStudent.setStudent(
-                student
-        );
-
-        teacherStudentRepository
-                .save(teacherStudent);
+        teacherStudentRepository.save(teacherStudent);
 
         return """
                 Successfully linked
-                with teacher ✅
+                with teacher 
                 """;
     }
 }

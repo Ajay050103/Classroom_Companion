@@ -18,51 +18,34 @@ import com.classroom.repository.UserRepository;
 public class UserServiceTest {
 
     @Mock
-    private UserRepository
-            userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private TeacherStudentRepository
-            teacherStudentRepository;
+    private TeacherStudentRepository teacherStudentRepository;
 
     @InjectMocks
-    private UserService
-            userService;
+    private UserService userService;
 
     @Test
     void shouldRegisterTeacher() {
 
-        Long chatId =
-                123456L;
+        Long chatId = 123456L;
+        String username = "ajay";
+        String name = "Ajay";
 
-        String username =
-                "ajay";
-
-        String name =
-                "Ajay";
-
-        when(
-                userRepository
-                        .findByTelegramId(
-                                chatId
-                        )
-        ).thenReturn(
-                Optional.empty()
-        );
+        when(userRepository.findByTelegramId(chatId))
+                .thenReturn(Optional.empty());
 
         String response =
-                userService
-                        .registerTeacher(
-                                chatId,
-                                username,
-                                name
-                        );
+                userService.registerTeacher(
+                        chatId,
+                        username,
+                        name
+                );
 
         assertEquals(
                 true,
-                response.contains(
-                        "Teacher Registered"
-                )
+                response.contains("Teacher Registered")
         );
     }
 }

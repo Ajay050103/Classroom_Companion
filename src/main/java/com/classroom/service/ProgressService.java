@@ -29,104 +29,51 @@ public class ProgressService {
             UserRepository userRepository,
             AssignmentRepository assignmentRepository,
             TeacherStudentRepository teacherStudentRepository,
-            AssignmentProgressRepository progressRepository
-    ) {
-        this.userRepository =
-                userRepository;
+            AssignmentProgressRepository progressRepository) {
 
-        this.assignmentRepository =
-                assignmentRepository;
-
-        this.teacherStudentRepository =
-                teacherStudentRepository;
-        this.progressRepository =
-                progressRepository;
+        this.userRepository = userRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.teacherStudentRepository = teacherStudentRepository;
+        this.progressRepository = progressRepository;
     }
 
-    public TeacherStudent
-    processStudentProgress(
+    public TeacherStudent processStudentProgress(
             Long telegramId,
-            String progressMessage
-    ) {
-    	System.out.println(
-    	        "PROCESS METHOD HIT"
-    	);
+            String progressMessage) {
 
-        User student =
-                userRepository
-                        .findByTelegramId(
-                                telegramId
-                        )
-                        .orElse(null);
+        System.out.println("PROCESS METHOD HIT");
 
-        if(student == null) {
-            return null;
+        User student = userRepository.findByTelegramId(telegramId).orElse(null);
+
+        if (student == null) return null;
+
+        Optional<Assignment> optionalAssignment =
+                assignmentRepository.findTopByStudentOrderByIdDesc(student);
+
+        if (optionalAssignment.isEmpty()) return null;
+
+        Assignment assignment = optionalAssignment.get();
+
+        System.out.println("Assignment found: " + assignment.getId());
+
+        AssignmentProgress progress = new AssignmentProgress();
+
+        progress.setStudent(student);
+        progress.setAssignment(assignment);
+        progress.setMessage(progressMessage);
+        progress.setCreatedAt(LocalDateTime.now());
+
+        System.out.println("Saving progress: " + progressMessage);
+
+        progressRepository.save(progress);
+
+        System.out.println("Progress saved");
+
+        if (progressMessage.equalsIgnoreCase("completed")) {
+            assignment.setStatus(AssignmentStatus.WAITING_FOR_SUBMISSION);
+            assignmentRepository.save(assignment);
         }
 
-        Optional<Assignment>
-        optionalAssignment =
-        assignmentRepository
-                .findTopByStudentOrderByIdDesc(
-                        student
-                );
-
-        if(optionalAssignment.isEmpty()) {
-            return null;
-        }
-
-        Assignment assignment =
-                optionalAssignment.get();
-        System.out.println(
-                "Assignment found: "
-                + assignment.getId()
-        );
-        AssignmentProgress
-        progress =
-                new AssignmentProgress();
-
-        progress.setStudent(
-                student
-        );
-
-        progress.setAssignment(
-                assignment
-        );
-
-        progress.setMessage(
-                progressMessage
-        );
-
-        progress.setCreatedAt(
-                LocalDateTime.now()
-        );
-        System.out.println(
-                "Saving progress: "
-                + progressMessage
-        );
-        progressRepository
-                .save(progress);
-        System.out.println(
-                "Progress saved"
-        );
-
-        if(progressMessage
-                .equalsIgnoreCase(
-                        "completed"
-                )) {
-
-            assignment.setStatus(
-                    AssignmentStatus
-                            .WAITING_FOR_SUBMISSION
-            );
-
-            assignmentRepository
-                    .save(assignment);
-        }
-
-        return teacherStudentRepository
-                .findByStudent(
-                        student
-                )
-                .orElse(null);
+        return teacherStudentRepository.findByStudent(student).orElse(null);
     }
 }
